@@ -28,12 +28,16 @@
         <div class="lockscreen-bg"></div>
         <div class="lockscreen-content">
             <div class="lockscreen-heart">💗</div>
-            <h2 class="lockscreen-title">ยินดีต้อนรับสู่ความทรงจำของเรา</h2>
-            <p class="lockscreen-hint">กดที่หัวใจ เพื่อเข้าไป</p>
-            <button class="lockscreen-btn" id="lockscreenBtn">
-                <span class="lockscreen-btn-heart">❤️</span>
-                <span>เข้าสู่โลกของเรา</span>
-            </button>
+            <h2 class="lockscreen-title">Memory</h2>
+            <p class="lockscreen-hint" id="lockHint">ใส่รหัสเพื่อเข้าชม...</p>
+            <div class="lockscreen-input-wrap">
+                <input type="text" inputmode="numeric" id="lockPassword" class="lockscreen-input" placeholder="••••••" maxlength="6" autocomplete="off">
+                <button class="lockscreen-btn" id="lockscreenBtn">
+                    <span class="lockscreen-btn-heart">❤️</span>
+                    <span>เข้าสู่โลกของเรา</span>
+                </button>
+            </div>
+            <p class="lockscreen-error" id="lockError"></p>
         </div>
     </div>
 

@@ -13,6 +13,14 @@ var MEMO_DATA = {
     startDateDisplay: '25 กันยายน 2020',
   },
 
+  // --- 🔐 Lock Screen ---
+  // รหัสผ่านถูกเก็บเป็น SHA-256 hash (ไม่เก็บรหัสตรง)
+  // วิธีเปลี่ยน: echo -n "รหัสใหม่" | shasum -a 256 แล้วเอามาใส่ตรงนี้
+  lockScreen: {
+    passwordHash: '43c275037f34eb94c1e2bab001ab1c57536ec029b03de7b7e7a13e47088474d3', // "250963" (วันครบรอบ)
+    hint: '',
+  },
+
   // --- ⏳ Countdown — วันสำคัญ ---
   // target: 'anniversary' | { month: 1-12, day: 1-31 }
   specialDates: [

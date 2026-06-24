@@ -1,0 +1,17 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+
+# IDE
+.vscode/
+
+# OS
+Thumbs.db
+
+# Docs
+DOC.md

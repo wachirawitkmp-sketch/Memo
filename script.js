@@ -424,17 +424,160 @@
     }
   }
 
-  // --- Lock Screen ---
+  // --- Lock Screen with Real Password + Rate Limit ---
   function initLockScreen() {
     var lockScreen = document.getElementById('lockscreen');
     var btn = document.getElementById('lockscreenBtn');
-    if (!lockScreen || !btn) return;
+    var input = document.getElementById('lockPassword');
+    var errorEl = document.getElementById('lockError');
+    var hintEl = document.getElementById('lockHintText');
+    var failedAttempts = 0;
+    var lockoutUntil = 0;
 
-    btn.addEventListener('click', function () {
+    if (!lockScreen) return;
+
+    if (hintEl && D.lockScreen.hint) {
+      hintEl.textContent = D.lockScreen.hint;
+    }
+
+    if (sessionStorage.getItem('memo_unlocked') === 'yes') {
       lockScreen.classList.add('hidden');
-      // Spawn burst of hearts on unlock
       spawnHeartBurst(15);
+      return;
+    }
+
+    function isLockedOut() {
+      if (lockoutUntil > 0 && Date.now() < lockoutUntil) {
+        var remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+        showError('🔒 ล็อคชั่วคราว ' + remaining + ' วินาที');
+        return true;
+      }
+      if (lockoutUntil > 0 && Date.now() >= lockoutUntil) {
+        lockoutUntil = 0;
+        errorEl.textContent = '';
+      }
+      return false;
+    }
+
+    function tryUnlock() {
+      if (isLockedOut()) return;
+
+      var password = input.value.trim();
+      if (!password) {
+        showError('กรุณาใส่รหัสผ่าน');
+        return;
+      }
+
+      hashPassword(password).then(function (hash) {
+        if (hash === D.lockScreen.passwordHash) {
+          sessionStorage.setItem('memo_unlocked', 'yes');
+          lockScreen.classList.add('hidden');
+          spawnHeartBurst(15);
+          errorEl.textContent = '';
+          input.classList.remove('shake');
+          failedAttempts = 0;
+        } else {
+          failedAttempts++;
+          input.classList.remove('shake');
+          void input.offsetWidth;
+          input.classList.add('shake');
+          input.value = '';
+          input.focus();
+
+          // Rate limit: 3 wrong → 30s lockout, 5 wrong → 60s, 7+ → 5min
+          if (failedAttempts >= 7) {
+            lockoutUntil = Date.now() + 300000; // 5 minutes
+            showError('❌ ใส่ผิดหลายครั้งเกินไป ล็อค 5 นาที');
+          } else if (failedAttempts >= 5) {
+            lockoutUntil = Date.now() + 60000; // 1 minute
+            showError('⚠️ ใส่ผิดหลายครั้ง ล็อค 1 นาที');
+          } else if (failedAttempts >= 3) {
+            lockoutUntil = Date.now() + 30000; // 30 seconds
+            showError('⏳ ใส่ผิด 3 ครั้ง ล็อค 30 วินาที');
+          } else {
+            showError('รหัสผ่านไม่ถูกต้อง (' + failedAttempts + '/7)');
+          }
+        }
+      });
+    }
+
+    function showError(msg) {
+      if (errorEl) errorEl.textContent = msg;
+    }
+
+    // Update countdown in real-time
+    setInterval(function () {
+      if (lockoutUntil > 0 && Date.now() < lockoutUntil) {
+        var remaining = Math.ceil((lockoutUntil - Date.now()) / 1000);
+        showError('🔒 ล็อคชั่วคราว ' + remaining + ' วินาที');
+      }
+    }, 1000);
+
+    btn.addEventListener('click', tryUnlock);
+    input.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') tryUnlock();
     });
+  }
+
+  // SHA-256 hashing using Web Crypto API
+  function hashPassword(str) {
+    var encoder = new TextEncoder();
+    var data = encoder.encode(str);
+    return crypto.subtle.digest('SHA-256', data).then(function (buffer) {
+      return Array.from(new Uint8Array(buffer))
+        .map(function (b) { return b.toString(16).padStart(2, '0'); })
+        .join('');
+    });
+  }
+
+  // --- Anti F12 / DevTools ---
+  function initAntiDevTools() {
+    // Disable right-click
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+    });
+
+    // Disable common dev tools shortcuts (but not all - can't fully block)
+    document.addEventListener('keydown', function (e) {
+      // F12
+      if (e.key === 'F12') {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+Shift+I / Cmd+Option+I
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'I' || e.key === 'i')) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+Shift+J / Cmd+Option+J
+      if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'J' || e.key === 'j')) {
+        e.preventDefault();
+        return false;
+      }
+      // Ctrl+U (view source)
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'U' || e.key === 'u')) {
+        e.preventDefault();
+        return false;
+      }
+    });
+
+    // DevTools detection via debugger timing trick
+    var devtoolsOpen = false;
+    var threshold = 160;
+
+    setInterval(function () {
+      var start = performance.now();
+      debugger;
+      var end = performance.now();
+      if (end - start > threshold && !devtoolsOpen) {
+        devtoolsOpen = true;
+        // Clear sensitive content
+        document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;color:#fff;background:#0a0a0f;font-family:sans-serif;text-align:center"><div><h1 style="font-size:3rem">🔒</h1><p style="margin-top:1rem;color:#b0a0b8">กรุณาปิดเครื่องมือนักพัฒนาก่อนเข้าชม</p></div></div>';
+      }
+      if (end - start <= threshold && devtoolsOpen) {
+        devtoolsOpen = false;
+      }
+    }, 1000);
   }
 
   // --- Floating Hearts on Click ---
@@ -539,6 +682,7 @@
     initScrollTop();
     initYouTubePlayer();
     initLockScreen();
+    initAntiDevTools();
     initFloatingHearts();
     initBucketList();
   }
