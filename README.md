@@ -6,5 +6,5 @@
 - Vanilla JavaScript (ES5)
 - Google Fonts (Playfair Display + Sarabun)
 - Font Awesome 6
-- Leaflet.js (แผนที่ฟรี ไม่ต้อง API Key)
+- Leaflet.js 
 - YouTube IFrame Embed
