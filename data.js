@@ -26,7 +26,7 @@ var MEMO_DATA = {
   specialDates: [
     { name: 'วันครบรอบครั้งต่อไป', icon: '💝', target: 'anniversary' },
     { name: 'วันวาเลนไทน์',         icon: '💌', target: { month: 2, day: 14 } },
-    { name: 'วันเกิดแฟน',           icon: '🎂', target: { month: 12, day: 25 } },
+    { name: 'วันเกิดแฟน',           icon: '🎂', target: { month: 11, day: 5 }, birthYear: 2002 },
   ],
 
   // --- 📅 Timeline — เหตุการณ์สำคัญ ---
@@ -59,7 +59,7 @@ var MEMO_DATA = {
     { src: 'https://images.unsplash.com/photo-1545249390-6bdfa286032f?w=800&h=400&fit=crop', type: 'wide',   caption: '🎉 ฉลองครบรอบ' },
     { src: 'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&h=400&fit=crop', type: 'square', caption: '🎁 ของขวัญจากแฟน' },
     { src: 'https://images.unsplash.com/photo-1529636798458-92182e662485?w=600&h=800&fit=crop', type: 'tall',   caption: '❤️ กอดที่อบอุ่นที่สุด' },
-    { src: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=400&h=400&fit=crop', type: 'square', caption: '🎂 วันเกิดแฟน' },
+    { src: 'https://images.unsplash.com/photo-1519671482749-fd09be7ccebf?w=400&h=400&fit=crop', type: 'square', caption: '🎂 วันเกิดอุ้ย' },
   ],
 
   // --- 📝 Bucket List — สิ่งที่อยากทำด้วยกัน ---

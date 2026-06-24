@@ -103,7 +103,8 @@
           '<div class="countdown-unit"><span class="num">--</span><span class="lbl">ชม.</span></div>' +
           '<div class="countdown-unit"><span class="num">--</span><span class="lbl">นาที</span></div>' +
           '<div class="countdown-unit"><span class="num">--</span><span class="lbl">วิ</span></div>' +
-        '</div>';
+        '</div>' +
+        (item.birthYear ? '<div class="countdown-age" id="age_' + D.specialDates.indexOf(item) + '"></div>' : '');
 
       container.appendChild(card);
     });
@@ -140,8 +141,43 @@
     });
   }
 
+  // Update age display for birthday countdowns
+  function updateAgeDisplay() {
+    D.specialDates.forEach(function (item, index) {
+      if (!item.birthYear) return;
+      var ageEl = document.getElementById('age_' + index);
+      if (!ageEl) return;
+
+      var now = new Date();
+      var birthDate = new Date(item.birthYear, item.target.month - 1, item.target.day);
+      var ageYears = now.getFullYear() - birthDate.getFullYear();
+      var ageMonths = now.getMonth() - birthDate.getMonth();
+      var ageDays = now.getDate() - birthDate.getDate();
+
+      if (ageDays < 0) {
+        var prevMonth = new Date(now.getFullYear(), now.getMonth(), 0);
+        ageDays += prevMonth.getDate();
+        ageMonths--;
+      }
+      if (ageMonths < 0) {
+        ageMonths += 12;
+        ageYears--;
+      }
+
+      // Next birthday age
+      var targetDate = getTargetDate(item);
+      var nextAge = targetDate.getFullYear() - item.birthYear;
+
+      ageEl.textContent = '🎂 อายุ ' + ageYears + ' ปี ' + ageMonths + ' เดือน (จะครบ ' + nextAge + ' ปี)';
+    });
+  }
+
   updateCountdowns();
   setInterval(refreshCountdownValues, 1000);
+
+  // Update age display
+  updateAgeDisplay();
+  setInterval(updateAgeDisplay, 60000); // every minute
 
   // ============================================
   // 3. TIMELINE SECTION
